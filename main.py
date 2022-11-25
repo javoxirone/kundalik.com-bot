@@ -1,12 +1,55 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
+from aiogram.types import ContentType
 from aiogram.utils import executor
+
+import config
 from parser import login
 from config import TOKEN
 from db import Db
 
 bot = Bot(token=TOKEN, parse_mode='HTML')
 dp = Dispatcher(bot)
+
+# prices
+PRICE = types.LabeledPrice(label="1 yilga obuna", amount=1000 * 100)
+
+
+# buy
+@dp.message_handler(commands=['buy'])
+async def buy(message: types.Message):
+    if config.PAYMENTS_TOKEN.split(':')[1] == 'TEST':
+        await bot.send_message(message.chat.id, "Test payment!!!")
+    await bot.send_invoice(message.chat.id,
+                           title="Bot uchun yillik obuna",
+                           provider_token=config.PAYMENTS_TOKEN,
+                           currency='sum',
+                           photo_url="https://cdn.lifehacker.ru/wp-content/uploads/2022/06/a9c2fcca-1a23-41e9-a18a-43a4beee4709-kopiya_1654586421.jpg",
+                           photo_width=1200,
+                           photo_height=600,
+                           photo_size=1200,
+                           is_flexible=False,
+                           prices=[PRICE],
+                           start_parameter="one-year-subscription",
+                           payload="test-invoice-payload"
+                           )
+
+
+# pre checkout
+@dp.pre_checkout_query_handler(lambda query: True)
+async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
+    await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
+
+
+# successful payment
+@dp.message_handler(content_types=ContentType.SUCCESSFUL_PAYMENT)
+async def successful_payment(message: types.Message):
+    print("SUCCESSFUL PAYMENT:")
+    payment_info = message.successful_payment.to_python()
+    for k, v in payment_info.items():
+        print(f"{k} = {v}")
+    await bot.send_message(message.chat.id,
+                           f"To'lov {message.successful_payment.total_amount // 100} {message.successful_payment.currency} summasiga muvaffaqiyatli amalga oshirildi!")
 
 
 @dp.message_handler(commands=['start'])
@@ -47,7 +90,8 @@ async def get_command_search(message: types.Message):
 
 @dp.message_handler(commands=['help'])
 async def process_help_command(message: types.Message):
-    await message.reply("Bu bot orqali jonli ravishda bugungi maktab jadvalini kuzatib borishingiz mumkin!\nKundalik platformasi malumotlarinin yangilash uchun\n(login - parol) jo'nating")
+    await message.reply(
+        "Bu bot orqali jonli ravishda bugungi maktab jadvalini kuzatib borishingiz mumkin!\nKundalik platformasi malumotlarinin yangilash uchun\n(login - parol) jo'nating")
 
 
 from datetime import datetime
