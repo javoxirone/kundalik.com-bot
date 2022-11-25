@@ -28,6 +28,7 @@ def login(login, password):
 
         marks = data['userMarks']['children'][0]['marks']
         todaySchedule = data['userSchedule']['children'][0]['schedule']['days'][0]['lessons']
+        tomorrowSchedule = data['userSchedule']['children'][0]['schedule']['days'][1]['lessons']
 
         pprint(marks)
         pprint(todaySchedule)
@@ -36,7 +37,10 @@ def login(login, password):
         # data = re.search(r"\['__USER__START__PAGE__INITIAL__STATE__'\]\s*=\s*(.*);", r.text)
         # print(r.text)
         # print(requests.get('https://schools.kundalik.com/schedules/view.aspx?school=1000000248498&group=1984364230495136348').text)
-        return {'marks': marks, 'schedule': todaySchedule}
+        context = {'marks': marks, 'today_schedule': todaySchedule, 'tomorrow_schedule': tomorrowSchedule}
+        return context
     except Exception as e:
         print(e)
-        return {'marks': "To'gri malumot kiriting", 'schedule': "To'gri malumot kiriting"}
+        return {'marks': "To'gri malumot kiriting", 'schedule': "To'gri malumot kiriting", 'tomorrow_schedule': "To'gri malumot kiriting"}
+
+# pprint(login('nurmatjonovjavoxir', 'Bilmayman06$'))

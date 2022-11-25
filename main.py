@@ -58,7 +58,22 @@ async def process_help_command(message: types.Message):
     chat_id = message.chat.id
     db = Db()
     login_str, password = db.get_user(chat_id)
-    subjects = login(login_str, password)['schedule']
+    subjects = login(login_str, password)['today_schedule']
+    final_message = []
+    i = 0
+    for subject in subjects:
+        i += 1
+        final_message.append(
+            f'{i}) <strong>{subject["subject"]["name"]}</strong> - <code>{subject["theme"]}</code> <i>({subject["hours"]["startHour"]}:{subject["hours"]["startMinute"]}-{subject["hours"]["endHour"]}:{subject["hours"]["endMinute"]})</i>')
+    await message.answer("\n".join(final_message))
+
+
+@dp.message_handler(commands=['tomorrow_schedule'])
+async def process_help_command(message: types.Message):
+    chat_id = message.chat.id
+    db = Db()
+    login_str, password = db.get_user(chat_id)
+    subjects = login(login_str, password)['tomorrow_schedule']
     final_message = []
     i = 0
     for subject in subjects:
