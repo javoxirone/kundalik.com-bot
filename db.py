@@ -3,7 +3,7 @@ import sqlite3
 
 class Db:
     def __init__(self):
-        self.db = sqlite3.connect(f'beislam.db', check_same_thread=False)
+        self.db = sqlite3.connect(f'kundalik.db', check_same_thread=False)
         self.cursor = self.db.cursor()
 
     def check_user(self, telegram_id):
